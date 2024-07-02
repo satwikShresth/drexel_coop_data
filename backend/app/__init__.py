@@ -12,32 +12,29 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to your specific frontend origin if needed
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
-def get_db():
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        yield conn
-    finally:
-        conn.close()
 
+class SqliteConn():
+    def __init__(self):
+        self.conn = sqlite3.connect(DB_PATH)
 
-def fetch_data_from_db(conn: sqlite3.Connection, table_name: str) -> List[Dict[str, str]]:
-    cursor = conn.cursor()
-    query = f'SELECT * FROM "{table_name}"'
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    data = [dict(zip(columns, row)) for row in rows]
-    return data
+    def fetchTable(self, name) -> List[Dict[str, str]]:
+        cursor = self.conn.cursor()
+        query = f'SELECT * FROM "{name}"'
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        columns = [description[0] for description in cursor.description]
+        data = [dict(zip(columns, row)) for row in rows]
+        return data
+
+    def __del__(self):
+        self.conn.close()
 
 
 @app.get("/data", response_model=List[Dict[str, str]])
-def get_data(db: sqlite3.Connection = Depends(get_db)):
-    table_name = 'salary'
-    data = fetch_data_from_db(db, table_name)
+def get_data(db: SqliteConn = Depends(SqliteConn)):
+    data = db.fetchTable('salary')
     return JSONResponse(content=data)

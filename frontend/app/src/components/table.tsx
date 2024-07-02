@@ -1,33 +1,7 @@
-import { useState, useEffect } from "react";
+import React from "react";
 
-export default function Table(): any {
-
-   const [data, setData] = useState<any[]>([]);
-   const [headers, setHeaders] = useState<string[]>([]);
-   const [loading, setLoading] = useState<boolean>(true);
-   const [error, setError] = useState<string | null>(null);
-
-   useEffect(() => {
-      // Fetch data from the API
-      fetch('http://localhost:8000/data')
-         .then(response => {
-            if (!response.ok) {
-               throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-         })
-         .then(data => {
-            setData(data);
-            if (data.length > 0) {
-               setHeaders(Object.keys(data[0]));
-            }
-            setLoading(false);
-         })
-         .catch(error => {
-            setError(`Error fetching data: ${error.message}`);
-            setLoading(false);
-         });
-   }, []);
+interface TableProps { data: any[]; headers: string[]; loading: boolean; error: string | null }
+const TableComponent: React.FC<TableProps> = ({ data, headers, loading, error }) => {
 
    if (loading) {
       return <div>Loading...</div>;
@@ -59,3 +33,5 @@ export default function Table(): any {
    );
 
 };
+
+export default TableComponent;
