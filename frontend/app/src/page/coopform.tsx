@@ -1,22 +1,45 @@
-
 import React from 'react';
-import { Formik, Form } from 'formik';
-import { RadioGroup, SliderInput, TextInput } from '../components/form';
+import { Formik, Form, Field } from 'formik';
+import { CitySelect, DatePickerInput, RadioGroup, SliderInput, TextInput } from '../components/form';
 
-interface FormValues { companyName: string; position: string; salary: number; salaryNotApplicable: boolean; requiredHours: number; requiredHoursNotApplicable: boolean; coopYear: number; major: string; coopCycle: string;experience:string ; }
+const fetchCities = async (query: string) => {
+   try {
+      const response = await fetch(
+         !query
+            ? 'http://localhost:8000/uscities'
+            : `http://localhost:8000/uscities?query=${query}`
+      );
+      if (!response.ok) {
+         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      return result.map((item: { city: string; state_id: string }) => ({
+         value: `${item.city}, ${item.state_id}`,
+         label: `${item.city}, ${item.state_id}`,
+      }));
+   } catch (error) {
+      console.error('Error fetching data:', error);
+      return [];
+   }
+};
+
+interface FormValues { location: string | any; cityNotApplicable: boolean; companyName: string; position: string; salary: number; salaryNotApplicable: boolean; requiredHours: number; requiredHoursNotApplicable: boolean; coopYear: number; major: string; coopCycle: string; experience: string; }
 const CoopForm: React.FC = () => {
    const initialValues: FormValues = {
       companyName: '',
       position: '',
-      salary: 50,
+      salary: 15,
       salaryNotApplicable: false,
       requiredHours: 40,
       requiredHoursNotApplicable: false,
-      coopYear: 2022,
+      coopYear: new Date().getFullYear(),
+      location: '',
+      cityNotApplicable: false,
       major: '',
       coopCycle: '',
       experience: '',
    };
+
 
    return (
       <Formik
@@ -27,8 +50,24 @@ const CoopForm: React.FC = () => {
       >
          {({ values, setFieldValue }) => (
             <Form className="max-w-2xl mx-auto p-4 bg-white shadow-md rounded-md">
-               <TextInput id="companyName" label="Name of the company" />
+               <TextInput id="companyName" label="Company Name" />
                <TextInput id="position" label="Position" />
+
+               <Field
+                  name="location"
+                  label="Location"
+                  component={CitySelect}
+                  id="location"
+                  optionsCallback={fetchCities}
+                  showNotApplicable="Remote"
+                  notApplicable={values.cityNotApplicable}
+                  onNotApplicableChange={(checked: any) => {
+                     setFieldValue('cityNotApplicable', checked);
+                     if (checked) {
+                        setFieldValue('location', '');
+                     }
+                  }}
+               />
 
                <SliderInput
                   id="salary"
@@ -60,14 +99,15 @@ const CoopForm: React.FC = () => {
                   unit="hr"
                />
 
-               <SliderInput
+               <DatePickerInput
                   id="coopYear"
                   label="Coop Year"
-                  min={2015}
-                  max={2030}
-                  step={1}
-                  value={values.coopYear}
-                  onChange={(value: any) => setFieldValue('coopYear', value)}
+                  selectedDate={new Date(values.coopYear, 0, 1)}
+                  onChange={(date) => {
+                     if (date) {
+                        setFieldValue('coopYear', date.getFullYear());
+                     }
+                  }}
                />
 
                <TextInput id="major" label="Major" />

@@ -19,7 +19,7 @@ def print_data_from_db(db_path, table_name):
     conn.close()
 
 
-sqlite_db_path = './database.db'
-table_name = 'salary'
+sqlite_db_path = './uscities.db'
+table_name = 'uscities'
 
 print_data_from_db(sqlite_db_path, table_name)
