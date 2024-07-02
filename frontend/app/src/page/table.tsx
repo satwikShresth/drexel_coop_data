@@ -8,7 +8,6 @@ const Table: React.FC = () => {
    const [error, setError] = useState<string | null>(null);
 
    useEffect(() => {
-      // Fetch data from the API
       fetch('http://localhost:8000/data')
          .then(response => {
             if (!response.ok) {

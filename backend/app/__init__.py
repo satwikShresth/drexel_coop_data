@@ -33,6 +33,12 @@ async def get_data(db: SqliteConn = Depends(SqDatabase)):
     return JSONResponse(content=data)
 
 
+@app.get("/table", response_model=List[Dict[str, str]])
+async def get_table_data(db: SqliteConn = Depends(SqDatabase)):
+    data = db.fetchTable('salary')
+    return JSONResponse(content=data)
+
+
 @app.get("/uscities", response_model=List[Dict[str, str]])
 async def get_all_cities_usa_data(
     query: str = Query("", min_length=0, max_length=50),
