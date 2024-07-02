@@ -3,7 +3,7 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import { RadioGroup, SliderInput, TextInput } from '../components/form';
 
-interface FormValues { companyName: string; position: string; salary: number; salaryNotApplicable: boolean; requiredHours: number; requiredHoursNotApplicable: boolean; coopYear: number; major: string; coopCycle: string; }
+interface FormValues { companyName: string; position: string; salary: number; salaryNotApplicable: boolean; requiredHours: number; requiredHoursNotApplicable: boolean; coopYear: number; major: string; coopCycle: string;experience:string ; }
 const CoopForm: React.FC = () => {
    const initialValues: FormValues = {
       companyName: '',
@@ -15,6 +15,7 @@ const CoopForm: React.FC = () => {
       coopYear: 2022,
       major: '',
       coopCycle: '',
+      experience: '',
    };
 
    return (
@@ -38,7 +39,7 @@ const CoopForm: React.FC = () => {
                   value={values.salary}
                   onChange={(value: any) => setFieldValue('salary', value)}
                   unit="$/hr"
-                  showNotApplicable= "Unpaid"
+                  showNotApplicable="Unpaid"
                   notApplicable={values.salaryNotApplicable}
                   onNotApplicableChange={(checked: any) => {
                      setFieldValue('salaryNotApplicable', checked);
