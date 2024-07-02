@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TableComponent from "./../components/table";
+import TableComponent from "./../components/table/table";
 
 const Table: React.FC = () => {
    const [data, setData] = useState<any[]>([]);
@@ -31,7 +31,13 @@ const Table: React.FC = () => {
 
 
    return (
-      <TableComponent data={data} headers={headers} loading={loading} error={error} />
+      <TableComponent
+         data={data}
+         headers={headers}
+         loading={loading}
+         error={error}
+         rowsPerPage={50}
+      />
    );
 };
 

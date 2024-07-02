@@ -2,7 +2,7 @@ import './App.css'
 
 import NavBar from "./components/navbar";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import CoopForm from './page/coopform';
+import CoopForm from './page/coop';
 import Table from './page/table';
 import './App.css';
 

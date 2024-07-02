@@ -1,11 +1,17 @@
 import React from 'react';
+import "./coop.css"
+import * as Yup from 'yup';
 import { Formik, Form, Field } from 'formik';
-import { CitySelect, DatePickerInput, RadioGroup, SliderInput, TextInput } from '../components/form';
+import DatePickerInput from '../components/form/date';
+import TextInput from '../components/form/text';
+import CitySelect from '../components/form/city';
+import SliderInput from '../components/form/slider';
+import RadioGroup from '../components/form/radio';
 
 const fetchCities = async (query: string) => {
    try {
       const response = await fetch(
-         !query
+         !(query)
             ? 'http://localhost:8000/uscities'
             : `http://localhost:8000/uscities?query=${query}`
       );
@@ -23,7 +29,34 @@ const fetchCities = async (query: string) => {
    }
 };
 
-interface FormValues { location: string | any; cityNotApplicable: boolean; companyName: string; position: string; salary: number; salaryNotApplicable: boolean; requiredHours: number; requiredHoursNotApplicable: boolean; coopYear: number; major: string; coopCycle: string; experience: string; }
+
+const validationSchema = Yup.object().shape({
+   companyName: Yup.string().required('Company Name is required'),
+   position: Yup.string().required('Position is required'),
+   salary: Yup.number().required('Salary is required').min(0, 'Salary must be greater than or equal to 0'),
+   requiredHours: Yup.number().required('Required Hours are required').min(0, 'Hours must be greater than or equal to 0'),
+   coopYear: Yup.number().required('Coop Year is required'),
+   location: Yup.string().required('Location is required'),
+   major: Yup.string().required('Major is required'),
+   coopCycle: Yup.string().required('Co-op Cycle is required'),
+   experience: Yup.string().required('Experience is required'),
+});
+
+interface FormValues {
+   location: string | any;
+   locationNotApplicable: boolean;
+   companyName: string;
+   position: string;
+   salary: number;
+   salaryNotApplicable: boolean;
+   requiredHours: number;
+   requiredHoursNotApplicable: boolean;
+   coopYear: number;
+   major: string;
+   coopCycle: string;
+   experience: string;
+}
+
 const CoopForm: React.FC = () => {
    const initialValues: FormValues = {
       companyName: '',
@@ -34,7 +67,7 @@ const CoopForm: React.FC = () => {
       requiredHoursNotApplicable: false,
       coopYear: new Date().getFullYear(),
       location: '',
-      cityNotApplicable: false,
+      locationNotApplicable: false,
       major: '',
       coopCycle: '',
       experience: '',
@@ -44,14 +77,16 @@ const CoopForm: React.FC = () => {
    return (
       <Formik
          initialValues={initialValues}
+         validationSchema={validationSchema}
          onSubmit={(values) => {
             console.log(values);
          }}
       >
          {({ values, setFieldValue }) => (
             <Form className="max-w-2xl mx-auto p-4 bg-white shadow-md rounded-md">
-               <TextInput id="companyName" label="Company Name" />
-               <TextInput id="position" label="Position" />
+               <TextInput id="companyName" label="Company Name" required />
+
+               <TextInput id="position" label="Position" required />
 
                <Field
                   name="location"
@@ -60,13 +95,14 @@ const CoopForm: React.FC = () => {
                   id="location"
                   optionsCallback={fetchCities}
                   showNotApplicable="Remote"
-                  notApplicable={values.cityNotApplicable}
+                  notApplicable={values.locationNotApplicable}
                   onNotApplicableChange={(checked: any) => {
-                     setFieldValue('cityNotApplicable', checked);
+                     setFieldValue('locationNotApplicable', checked);
                      if (checked) {
-                        setFieldValue('location', '');
+                        setFieldValue('location', 'Remote');
                      }
                   }}
+                  required={true}
                />
 
                <SliderInput
@@ -86,6 +122,7 @@ const CoopForm: React.FC = () => {
                         setFieldValue('salary', 0);
                      }
                   }}
+                  required={true}
                />
 
                <SliderInput
@@ -97,6 +134,7 @@ const CoopForm: React.FC = () => {
                   value={values.requiredHours}
                   onChange={(value: any) => setFieldValue('requiredHours', value)}
                   unit="hr"
+                  required={true}
                />
 
                <DatePickerInput
@@ -108,28 +146,33 @@ const CoopForm: React.FC = () => {
                         setFieldValue('coopYear', date.getFullYear());
                      }
                   }}
+                  required
                />
 
-               <TextInput id="major" label="Major" />
+               <TextInput id="major" label="Major" required />
+
 
                <RadioGroup
                   name="coopCycle"
                   label="Co-op Cycle"
                   options={['Fall/Winter', 'Spring/Summer']}
+                  required
                />
 
                <RadioGroup
                   name="experience"
                   label="Experience"
                   options={['1st', '2nd', '3rd']}
+                  required
                />
 
                <button
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
                >
                   Submit
                </button>
+
             </Form>
          )}
       </Formik>
