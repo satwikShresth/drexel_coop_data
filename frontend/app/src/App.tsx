@@ -1,5 +1,3 @@
-import './App.css'
-
 import NavBar from "./components/navbar";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CoopForm from './page/coop';
@@ -8,7 +6,7 @@ import './App.css';
 
 export default function App() {
    const links = [
-      { to: '/form/salary', label: 'Salary Form' }
+      { to: '/form/salary', label: 'Salary Form' },
    ]
    return (
       <div>
@@ -24,3 +22,4 @@ export default function App() {
       </div>
    );
 };
+

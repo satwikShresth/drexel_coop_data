@@ -1,5 +1,4 @@
 import "./form.css"
-import 'nouislider/distribute/nouislider.css';
 import 'react-datepicker/dist/react-datepicker.css'
 
 import { Field } from "formik";

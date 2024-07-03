@@ -3,7 +3,7 @@ import TableComponent from "./../components/table/table";
 
 const Table: React.FC = () => {
    const [data, setData] = useState<any[]>([]);
-   const [headers, setHeaders] = useState<string[]>([]);
+   const [headers, setHeaders] = useState<{ accessorKey: string; header: string }[]>([]);
    const [loading, setLoading] = useState<boolean>(true);
    const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +18,10 @@ const Table: React.FC = () => {
          .then(data => {
             setData(data);
             if (data.length > 0) {
-               setHeaders(Object.keys(data[0]));
+               setHeaders(Object.keys(data[0]).map(key => ({
+                  accessorKey: key,
+                  header: key.charAt(0).toUpperCase() + key.slice(1),
+               })));
             }
             setLoading(false);
          })
@@ -35,7 +38,6 @@ const Table: React.FC = () => {
          headers={headers}
          loading={loading}
          error={error}
-         rowsPerPage={50}
       />
    );
 };
