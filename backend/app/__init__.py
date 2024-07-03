@@ -27,15 +27,25 @@ class SqUsCitiesDatabase(SqliteConn):
     db_path = US_CITIES_DB_PATH
 
 
-@app.get("/data", response_model=List[Dict[str, str]])
-async def get_data(db: SqliteConn = Depends(SqDatabase)):
-    data = db.fetchTable('salary')
+@app.get("/salary/header", response_model=List[Dict[str, str]])
+async def get_table_header(db: SqliteConn = Depends(SqDatabase)):
+    data = db.fetchTableHeaders('salary')
     return JSONResponse(content=data)
 
 
-@app.get("/table", response_model=List[Dict[str, str]])
-async def get_table_data(db: SqliteConn = Depends(SqDatabase)):
-    data = db.fetchTable('salary')
+@app.get("/salary/size", response_model=int)
+async def get_table_size(db: SqliteConn = Depends(SqDatabase)):
+    data = db.fetchTableSize('salary')
+    return JSONResponse(content=data)
+
+
+@app.get("/salary/data", response_model=List[Dict[str, str]])
+async def get_table_data(
+    start: int = Query(0, description="Start index for fetching data"),
+    end: int = Query(10, description="End index for fetching data"),
+    db: SqliteConn = Depends(SqDatabase)
+):
+    data = db.fetchTableData('salary', start, end)
     return JSONResponse(content=data)
 
 
@@ -45,12 +55,23 @@ async def get_all_cities_usa_data(
     db: SqliteConn = Depends(SqUsCitiesDatabase)
 ):
     cursor = db.conn.cursor()
+
+    _query = "SELECT city, state_id FROM uscities "
+
     if query:
-        cursor.execute(
-            "SELECT city, state_id FROM uscities WHERE city LIKE ? LIMIT 50", (f"%{query}%",))
-    else:
-        cursor.execute("SELECT city, state_id FROM uscities LIMIT 50")
+        _query += f"WHERE city LIKE %{query}% "
+
+    _query += "LIMIT 50"
+
+    cursor.execute(_query)
     rows = cursor.fetchall()
     cursor.close()
-    data = [{"city": row[0], "state_id": row[1]} for row in rows]
-    return JSONResponse(content=data)
+
+    return JSONResponse(
+        content=[
+            {
+                "city": row[0],
+                "state_id": row[1]
+            } for row in rows
+        ]
+    )

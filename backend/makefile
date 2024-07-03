@@ -11,7 +11,7 @@ setup: ${REQ} ${SRC}
 	./.${VE}/bin/pip install -r ${REQ}
 
 run: ${SRC}
-	./.${VE}/bin/${FA} run ${SRC}
+	./.${VE}/bin/${FA} dev ${SRC}
 
 clean:
 	rm -rf .${VE}

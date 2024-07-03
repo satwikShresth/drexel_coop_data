@@ -1,12 +1,5 @@
 class Singleton(object):
-    """Use to create a singleton"""
     def __new__(cls, *args, **kwds):
-        """
-        >>> s = Singleton()
-        >>> p = Singleton()
-        >>> id(s) == id(p)
-        True
-        """
         it_id = "__it__"
         # getattr will dip into base classes, so __dict__ must be used
         it = cls.__dict__.get(it_id, None)
