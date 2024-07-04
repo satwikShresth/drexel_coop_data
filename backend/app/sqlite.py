@@ -1,55 +1,88 @@
-from typing import List, Dict
+from typing import List, Dict, Any
+from abc import ABC
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import sessionmaker
 from app.common.singleton import Singleton
-import sqlite3
+
+import app.database.uscities as uscities
+import app.database.salary as salary
 
 
-class SqliteConn(Singleton):
+class SqliteConn(Singleton, ABC):
     db_path: str = None
+    schema: DeclarativeMeta = None
 
     def __init__(self):
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        if self.db_path is None:
+            raise ValueError(
+                "Database path must be set before creating a connection.")
+
+        self.engine = create_engine(f'sqlite:///{self.db_path}', echo=False)
+        self.Session = sessionmaker(bind=self.engine)
+        self.metadata = MetaData()
+        self.metadata.reflect(bind=self.engine)
 
     def fetchTableData(
         self,
-        table_name: str,
         start: int = None,
         end: int = None
-    ) -> List[Dict[str, str]]:
-        cursor = self.conn.cursor()
+    ) -> List[Dict[str, Any]]:
+        with self.Session() as session:
+            query = session.query(self.schema)
 
-        query = f"""
-            SELECT *
-            FROM {table_name}
-            """
+            if start is not None and end is not None:
+                query = query.offset(start).limit(end - start)
 
-        if start is not None and end is not None:
-            query += f"""
-                LIMIT {end - start}
-                OFFSET {start}
-                """
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        columns = [description[0] for description in cursor.description]
-        data = [dict(zip(columns, row)) for row in rows]
+            rows = query.all()
+            columns = self.schema.__table__.columns.keys()
+            data = [
+                dict(
+                    zip(columns, [getattr(row, col)for col in columns])
+                ) for row in rows
+            ]
+
         return data
 
     def fetchTableSize(
         self,
-        table_name: str
     ) -> int:
-        cursor = self.conn.cursor()
-        cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
-        size = cursor.fetchone()[0]
+        with self.Session() as session:
+            size = session.query(self.schema).count()
         return size
 
     def fetchTableHeaders(
         self,
-        table_name: str
-    ) -> List[Dict[str, str]]:
-        cursor = self.conn.cursor()
-        cursor.execute(f"PRAGMA table_info({table_name})")
-        columns_info = cursor.fetchall()
-        return [col[1] for col in columns_info]
+    ) -> List[str]:
+        return [col.name for col in self.schema.__table__.columns]
 
     def __del__(self):
-        self.conn.close()
+        self.engine.dispose()
+
+
+class SalaryDatabase(SqliteConn):
+    db_path = salary.DB_LOC
+    schema = salary.Salary
+
+
+class UsCitiesDatabase(SqliteConn):
+    db_path = uscities.DB_LOC
+    schema = uscities.UsCities
+
+    def FetchStringMatchedData(self, query: str) -> List[Dict[str, str]]:
+        with self.Session() as session:
+            query = query.strip()
+            if query:
+                stmt = session.query(self.schema).filter(
+                    self.schema.city.like(f"%{query}%")).limit(50)
+            else:
+                stmt = session.query(self.schema).limit(50)
+
+            results = stmt.all()
+
+        return [
+            {
+                "city": row.city,
+                "state_id": row.state_id
+            } for row in results
+        ]
