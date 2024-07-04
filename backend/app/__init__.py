@@ -28,13 +28,15 @@ class SqUsCitiesDatabase(SqliteConn):
 
 
 @app.get("/salary/header", response_model=List[Dict[str, str]])
-async def get_table_header(db: SqliteConn = Depends(SqDatabase)):
+async def get_table_header():
+    db: SqliteConn = Depends(SqDatabase)
     data = db.fetchTableHeaders('salary')
     return JSONResponse(content=data)
 
 
 @app.get("/salary/size", response_model=int)
-async def get_table_size(db: SqliteConn = Depends(SqDatabase)):
+async def get_table_size():
+    db: SqliteConn = Depends(SqDatabase)
     data = db.fetchTableSize('salary')
     return JSONResponse(content=data)
 
@@ -43,8 +45,8 @@ async def get_table_size(db: SqliteConn = Depends(SqDatabase)):
 async def get_table_data(
     start: int = Query(0, description="Start index for fetching data"),
     end: int = Query(10, description="End index for fetching data"),
-    db: SqliteConn = Depends(SqDatabase)
 ):
+    db: SqliteConn = Depends(SqDatabase)
     data = db.fetchTableData('salary', start, end)
     return JSONResponse(content=data)
 
@@ -52,8 +54,8 @@ async def get_table_data(
 @app.get("/uscities", response_model=List[Dict[str, str]])
 async def get_all_cities_usa_data(
     query: str = Query("", min_length=0, max_length=50),
-    db: SqliteConn = Depends(SqUsCitiesDatabase)
 ):
+    db: SqliteConn = Depends(SqUsCitiesDatabase)
     cursor = db.conn.cursor()
 
     _query = "SELECT city, state_id FROM uscities "
