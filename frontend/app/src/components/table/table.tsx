@@ -43,7 +43,7 @@ const TableComponent: React.FC<TableProps> = ({ fetchData, headers, size }) => {
 
    const columns = useMemo<ColumnDef<any>[]>(
       () => headers.map((header: string) => ({
-         accessorKey: header,
+         accessorKey: header.toLowerCase(),
          header: header,
       })),
       [headers]
@@ -161,6 +161,7 @@ const TableComponent: React.FC<TableProps> = ({ fetchData, headers, size }) => {
 
 
    const TableBody: React.FC = () => {
+      console.log(table.getRowModel().rows[0].getVisibleCells())
       return (
          <tbody>
             {table.getRowModel().rows.map((row) => (
