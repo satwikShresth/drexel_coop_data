@@ -6,7 +6,7 @@ import './App.css';
 
 export default function App() {
    const links = [
-      { to: '/form/salary', label: 'Salary Form' },
+      { to: '/salary/form', label: 'Salary Form' },
    ]
    return (
       <div>
@@ -15,7 +15,8 @@ export default function App() {
             <div className="container mx-auto p-4 pt-16">
                <Routes>
                   <Route path="/" element={<Table />} />
-                  <Route path="/form/salary" element={<CoopForm />} />
+                  <Route path="/salary/data" element={<Table />} />
+                  <Route path="/salary/form" element={<CoopForm />} />
                </Routes>
             </div>
          </Router>

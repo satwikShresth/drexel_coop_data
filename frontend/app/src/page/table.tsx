@@ -56,13 +56,18 @@ const Table: React.FC = () => {
       }
    };
 
+   const GetTable: React.FC = () => {
+      return (
+         (!error)
+            ? <TableComponent fetchData={fetchData} headers={headers} size={tableSize} />
+            : <div> Error: {error} </div>
+      );
+   };
+
 
    return (
-      (!error)
-         ? <TableComponent fetchData={fetchData} headers={headers} size={tableSize} />
-         : <div> Error: {error} </div>
+      <GetTable />
    );
 };
 
 export default Table;
-

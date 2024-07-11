@@ -42,11 +42,14 @@ const TableComponent: React.FC<TableProps> = ({ fetchData, headers, size }) => {
    }, [fetchData, pagination]);
 
    const columns = useMemo<ColumnDef<any>[]>(
-      () => headers.map((header: string) => ({
-         accessorKey: header,
-         header: header,
-      })),
-      [headers]
+      () => headers.map(
+         (header: string) => (
+            {
+               accessorKey: header.toLowerCase(),
+               header: header,
+            }
+         )
+      ), [headers]
    );
 
    const table = useReactTable({
