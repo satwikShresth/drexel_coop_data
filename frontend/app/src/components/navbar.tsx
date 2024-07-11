@@ -14,7 +14,7 @@ const NavBar: React.FC<NavBarProps> = ({ links }) => {
    return (
       <nav className="bg-gray-800 p-4 fixed top-0 left-0 w-full z-10">
          <div className="container mx-auto flex justify-between items-center">
-            <Link to="/" className="text-white text-lg font-semibold">
+            <Link to="/salary/data" className="text-white text-lg font-semibold">
                Drexel Anonymous Coop Data
             </Link>
             <ul className="space-x-4 flex">
